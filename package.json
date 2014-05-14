@@ -1,0 +1,25 @@
+{
+   "name": "twnetythings-server",
+   "version": "1.0.0",
+   "private": true,
+   "engines":
+   {
+      "node": "0.8.x"
+   },
+   "dependencies":
+   {
+      "async": "*",
+      "log4js": "*",
+      "express": "3.5.*",
+      "node-twitter-api": "*",
+      "sqlite3" : "*",
+      "lodash" : "*",
+      "apn" : "*",
+      "debug" : "*",
+      "validator" : "*",
+      "querystring" : "*",
+      "request" : "*",
+      "mkdirp" : "*",
+      "html-entities" : "*"
+   }
+}
