@@ -137,16 +137,16 @@ TweetImages.prototype.extractOpenGraphImage = function(body)
 TweetImages.prototype.extractTwitterMetaImage = function(body)
 {
 	//Determine image source
-	var img = body.match(/<meta\s(property|name)="twitter:image:src"\scontent="([^"]*)"/i);
+	var img = body.match(/<meta\s(property|name)="twitter:image(:src)?"\scontent="([^"]*)"/i);
 	if (img)
 	{
 		if (this.logger)
 		{
-			this.logger.info('extractTwitterMetaImage : image found =', img[2]);		
+			this.logger.info('extractTwitterMetaImage : image found =', img[3]);		
 		}				
 		return img[2];
 	}
-	img = body.match(/<meta\scontent="([^"]*)"\s(property|name)="twitter:image:src"/i);
+	img = body.match(/<meta\scontent="([^"]*)"\s(property|name)="twitter:image(:src)?"/i);
 	if (img)
 	{
 		if (this.logger)
