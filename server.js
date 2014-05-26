@@ -1,58 +1,36 @@
+
 /**
  * Requirements
  */
-var express = require('express');
-var context = require('./selfieshirt/context.js')(express); 
-var logger = context.log4js ? context.log4js.getLogger('server') : null
-var request = require('request');
+var logger = require('log4js').getLogger('cluster');
+var cluster = require('cluster');
 
 
 /**
- * Handle exceptions
+ * Determine worker counts
  */
-process.on('uncaughtException', function(error) 
+var processCount = 1;
+var restartDelay = 2000;
+
+
+/**
+ * Start API processes
+ */
+logger.info('Starting ' + processCount + ' workers.');
+cluster.setupMaster(
 {
-	if (logger)
-	{
-		logger.error('--------------------------------------------------');
-		logger.error('Catched exception:', error.message);
-		logger.error(error.stack);		
-	}
+	exec : __dirname + '/selfieshirt/selfieshirt.js'
 });
-
-
-/**
- * Create Server
- */
-var server = require('http').Server();
-var httpServer = express();
-httpServer.configure(function() 
+for (var i = 0; i < processCount; i++) 
 {
-	httpServer.use(require('./selfieshirt/express/connect-logger')(context));
-	httpServer.use(express.compress());
-	httpServer.use(express.json());
-	httpServer.use(express.urlencoded());		
-	httpServer.use(httpServer.router);
-});
-require('./selfieshirt/routes/index.js')(httpServer, context);	
-server.addListener('request', httpServer);	
-
-
-/**
- * Start server
- */
-if (logger)
-{
-	logger.info('--------------------------------------------------');
-	logger.info('Starting #Selfie-Shirt Server');
-	logger.info('  > working in environment ' + (context.configuration.environment));
-	logger.info('  > listening on port ' + (context.configuration.port));	
+    cluster.fork();      
 }
-server.listen(context.configuration.port);
-
 
 /**
- * Add twitter update task
+ * Restart cluster nodes when they die
  */
-require('./selfieshirt/tasks/updateTwitter.js')(context);	
-
+cluster.on('exit', function(worker, code, signal) 
+{
+	logger.info("Worker " + worker.process.pid + " (#" + worker.id + ") died => restarting in " + restartDelay + "ms");
+  	setTimeout(cluster.fork, restartDelay);
+});
